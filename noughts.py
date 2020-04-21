@@ -1,7 +1,13 @@
-starting_board =[['A1','A2','A3'],['B1','B2','B3'],['C1','C2','C3']]
-board = [['A1','A2','A3'],['B1','B2','B3'],['C1','C2','C3']]
-taken_turns = 0
-total_turns = 9
+def set_game():
+    global board
+    global taken_turns
+    global total_turns
+    global outcome
+
+    board = [['A1','A2','A3'],['B1','B2','B3'],['C1','C2','C3']]
+    taken_turns = 0
+    total_turns = 9
+    outcome = None
 
 def get_value(board, position):
     return board[position[0]][position[1]]
@@ -32,25 +38,62 @@ def is_valid_position(board, position):
     else:
         return True
 
-def check_win(board, user):
-    if ((board[2][0] == user and board[2][1] == user and board[2][2] == user) or 
-        (board[1][0] == user and board[1][1] == user and board[1][2] == user) or
-        (board[0][0] == user and board[0][1] == user and board[0][2] == user) or
-        (board[0][2] == user and board[1][2] == user and board[2][2] == user) or
-        (board[0][1] == user and board[1][1] == user and board[2][1] == user) or
-        (board[0][0] == user and board[1][0] == user and board[2][0] == user) or
-        (board[0][0] == user and board[1][1] == user and board[2][2] == user) or
-        (board[0][2] == user and board[1][1] == user and board[2][0] == user)):
-            return 'winner' + user
+def check_win(matrix):
+    for row in matrix:
+        if row[0] == row[1] == row[2]:
+            return True
+    return False
 
-def check_draw(board):
-    if board[0][0] != 'A1' and board[0][1] != 'A2' and board[0][2] != 'A3' and board[1][0] != 'B1' and board[1][1] != 'B2' and board[1][2] != 'B3' and board[2][0] != 'C1' and board[2][1] != 'C2' and board[2][2] != 'C3':
-            return 'draw'
+def get_row_matrix(board):
+    return board
+
+def get_col_matrix(board):
+    cols = []
+    for i in range(len(board)):
+        cols.append([row[i] for row in board])
+    return cols
+
+def get_diag_matrix(board):
+    left_diag = [board[i][len(board)-1-i] for i in range(len(board))]
+    right_diag = [board[i][i] for i in range(len(board))]
+    return [left_diag, right_diag]
+
+
+def is_user_piece(board, position):
+    if get_value(board, position) in ['X','O']:
+        return True
+    else:
+        return False
+
+def check_draw(matrix):
+    draw = True
+    for i in range(len(matrix)):
+        for j in range(len(matrix[i])):
+            if not is_user_piece(matrix, (i,j)):
+                draw = False
+    return draw
+
+def check_outcome(board, user):
+
+    global outcome
+    
+    if check_win(get_row_matrix(board)):
+        outcome = user + ' wins'
+    elif check_win(get_col_matrix(board)):
+        outcome = user + ' wins'
+    elif check_win(get_diag_matrix(board)):
+        outcome = user + ' wins'
+    elif check_draw(board):
+        outcome = 'The game is a draw'
+    print(outcome)
 
 def turn(board, user):
     pos = ask_piece(user)
     if is_valid_position(board, pos):
         place_piece(board, pos, user)
+        check_outcome(board, user)
+        global taken_turns
+        taken_turns = taken_turns + 1
     else:
         print('This is not a valid position!')
         turn(board, user)
@@ -60,38 +103,27 @@ def play_again():
 
 def reset():
     if play_again() == 'yes':
-        taken_turns = 0
-        board = starting_board
-    elif play_again() == 'no':
-        taken_turns = 10
+        play_game()
+    else:
         print('Thank you for playing.')
 
-print('Welcome to Noughts and Crosses!')        
+def play_game():
 
-while taken_turns < total_turns:
-    user_turn = get_user_turn(taken_turns)
-        
-    if user_turn == 'X':
-        turn(board, 'X')
-        if check_win(board, 'X') != 'winnerX': 
-            taken_turns = taken_turns + 1
-            if check_draw(board) == 'draw':
-                print('The game is a draw!')
-                reset()
-                
-        else:
-            print('The winner is X!')
-            reset()
-    elif user_turn == '0':
-        turn(board, '0')
-        if check_win(board, '0') != 'winner0': 
-            taken_turns = taken_turns + 1
-            if check_draw(board) == 'draw':
-                print('The game is a draw!')
-                reset()
-        else:
-            print('The winner is 0!')
-            reset()
-                
-    print(board)
-#Placeholder comment
+    print('Welcome to Noughts and Crosses!')
+
+    set_game()
+    
+    global outcome
+    while taken_turns < total_turns and outcome == None:
+        user_turn = get_user_turn(taken_turns)
+            
+        if user_turn == 'X':
+            turn(board, 'X')
+            
+        elif user_turn == '0':
+            turn(board, '0')
+                    
+        print(board)
+
+    if outcome != None:
+        reset()
