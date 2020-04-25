@@ -60,7 +60,7 @@ def get_diag_matrix(board):
 
 
 def is_user_piece(board, position):
-    if get_value(board, position) in ['X','O']:
+    if get_value(board, position) in ['X','0']:
         return True
     else:
         return False
