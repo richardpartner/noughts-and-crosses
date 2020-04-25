@@ -85,7 +85,9 @@ def check_outcome(board, user):
         outcome = user + ' wins'
     elif check_draw(board):
         outcome = 'The game is a draw'
-    print(outcome)
+
+    if outcome != None:
+        print(outcome)
 
 def turn(board, user):
     pos = ask_piece(user)
@@ -99,10 +101,14 @@ def turn(board, user):
         turn(board, user)
 
 def play_again():
-    return input('Would you like to play again? (yes or no)').strip().lower()
+    response = input('Would you like to play again? (yes or no)').strip().lower()
+    if response == 'yes':
+        return True
+    else:
+        return False
 
 def reset():
-    if play_again() == 'yes':
+    if play_again():
         play_game()
     else:
         print('Thank you for playing.')
